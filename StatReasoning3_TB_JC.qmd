@@ -64,7 +64,7 @@ There are four fundamental relations in a DAG: the fork, the pipe, the collider,
 
 Which forks do you see in the DAG you made on dagitty.net? Please write them out in a Quarto list (look up how to write a list if you don't remember!) in the form L ← M → N.
 
-# Answer Q1.2) 
+# Answer Q1.2)
 
 1.  U \<- A -\> C
 2.  B \<- C -\> Y
@@ -224,7 +224,7 @@ What to you seems like a reasonable minimum weight for a fox, in kg?
 
 # Answer2.3)
 
-7.25 kg (or 16 lbs) seems a reasonable weight for a heavy fox
+11.3 kg (or 25 lbs) seems a reasonable weight for a heavy fox
 
 ------------------------------------------------------------------------
 
@@ -243,18 +243,17 @@ foxes_w<- tibble(group = seq_len(n),
          area = seq(from = -2, to = 2, length.out = 100)) %>% # set up a range of areas
   mutate(weight = alpha + beta * area) # calculate weight from the parameters and area
 
-
-
 foxes_w_lines <- foxes_w |>
-  mutate(foxes_min = 3.17 - ((mean(foxes_w$weight)/sd(foxes_w$weight)))) |>
-  mutate(foxes_max = 7.25 - ((mean(foxes_w$weight)/sd(foxes_w$weight))))
-ggplot(foxes_w_lines, aes(x = area, y = weight, group = group)) +
+  mutate(foxes_min = (3.17 - (mean(foxes_w$weight)))/sd(foxes_w$weight)) |>
+  mutate(foxes_max = (11.3 - (mean(foxes_w$weight)))/sd(foxes_w$weight))
+
+foxes_w_lines_plot = ggplot(foxes_w_lines, aes(x = area, y = weight, group = group)) +
   geom_line(alpha = 1/10) +
-  geom_hline(yintercept = `foxes_min` , color = 'red') +
-  geom_hline(yintercept = `foxes_max` , color = 'red') +
+  geom_hline(yintercept = foxes_w_lines$foxes_min , color = 'red') +
+  geom_hline(yintercept = foxes_w_lines$foxes_max , color = 'red') +
   labs(x = "Standardized Area", y = "Standardized Weight")
 
-foxes_w_lines
+foxes_w_lines_plot
 ```
 
 ------------------------------------------------------------------------
@@ -278,8 +277,8 @@ Remake and plot a set of prior simulations that use priors you think are reasona
 ```{r}
 n <- 1000
 foxes_w<- tibble(group = seq_len(n),
-       alpha = rnorm(n, 1.5, 0.2), # prior for alpha
-       beta = rnorm(n, 0, .5)) %>% # prior for beta
+       alpha = rnorm(n, 4.25, 0.2), # prior for alpha
+       beta = rnorm(n, 0, 0.75)) %>% # prior for beta
   expand(nesting(group, alpha, beta), # the expand function gives us all possible combinations of the arguments
          area = seq(from = -2, to = 2, length.out = 100)) %>% # set up a range of areas
   mutate(weight = alpha + beta * area) # calculate weight from the parameters and area
@@ -287,13 +286,15 @@ foxes_w<- tibble(group = seq_len(n),
 
 
 foxes_w_lines <- foxes_w |>
-  mutate(foxes_min = 3.17 - ((mean(foxes_w$weight)/sd(foxes_w$weight)))) |>
-  mutate(foxes_max = 7.25 - ((mean(foxes_w$weight)/sd(foxes_w$weight))))
-ggplot(foxes_w_lines, aes(x = area, y = weight, group = group)) +
+  mutate(foxes_min = (3.17 - (mean(foxes_w$weight)))/sd(foxes_w$weight)) |>
+  mutate(foxes_max = (11.3 - (mean(foxes_w$weight)))/sd(foxes_w$weight))
+
+foxes_w_lines_plot2 = ggplot(foxes_w_lines, aes(x = area, y = weight, group = group)) +
   geom_line(alpha = 1/10) +
-  geom_hline(yintercept = foxes_min, color = 'red') +
-  geom_hline(yintercept = foxes_max, color = 'red') +
+  geom_hline(yintercept = foxes_w_lines$foxes_min, color = 'red') +
+  geom_hline(yintercept = foxes_w_lines$foxes_max, color = 'red') +
   labs(x = "Standardized Area", y = "Standardized Weight")
+foxes_w_lines_plot2
 ```
 
 ------------------------------------------------------------------------
@@ -307,8 +308,8 @@ food_on_area <- brm(avgfood ~ 1 + area,
                     data = fox_dat, 
                     family = gaussian,
                     # Here we set the priors that we investigated earlier
-                    prior = c(prior(normal(1.5, 0.2), class = Intercept),
-                              prior(normal(0, 0.5), class = b,),
+                    prior = c(prior(normal(4.25, 0.2), class = Intercept),
+                              prior(normal(0, 0.75), class = b,),
                               prior(exponential(1), class = sigma)),
                     iter = 4000, warmup = 2000, chains = 4, cores = 4, seed = 1234,
                     file = "output/food_on_area")
