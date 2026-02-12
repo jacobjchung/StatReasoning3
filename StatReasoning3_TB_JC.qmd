@@ -250,11 +250,11 @@ foxes_w_lines <- foxes_w |>
   mutate(foxes_max = 7.25 - ((mean(foxes_w$weight)/sd(foxes_w$weight))))
 ggplot(foxes_w_lines, aes(x = area, y = weight, group = group)) +
   geom_line(alpha = 1/10) +
-  geom_hline(yintercept = foxes_min, color = 'red') +
-  geom_hline(yintercept = foxes_max, color = 'red') +
+  geom_hline(yintercept = `foxes_min` , color = 'red') +
+  geom_hline(yintercept = `foxes_max` , color = 'red') +
   labs(x = "Standardized Area", y = "Standardized Weight")
 
-
+foxes_w_lines
 ```
 
 ------------------------------------------------------------------------
@@ -348,13 +348,17 @@ summary(avgfood_on_weight)
 
 # Answer Q2.7)
 
-Based on our results (an estimate of -0.02) more food does not make foxes heavier which is extremely unexpected. However, We think this is the case because
+Based on our results (an estimate of -0.02) more food does not make foxes heavier which is extremely unexpected. However, the 95% credibility interval overlaps with zero, thus that leads us to suggest that, given our model, the effect of average food on fox weight is not different from zero. Looking at the DAG retrospectively, it makes sense that our model would come to this result, because there is a path avgfood -\> groupsize -\> weight, that is unaccounted for in our model.
 
 ------------------------------------------------------------------------
 
 ### Q2.8 Is there a variable we should condition upon?
 
 We just estimated the total impact of `avgfood` on `weight`, which includes both direct and indirect paths. Think back to your DAG elemental confounds. If we want to estimate only the direct impact of `avgfood` on `weight`, which variable should we condition upon?
+
+# Answer Q2.8)
+
+We believe that we need to condition on the variable group size because it is the indirect path mentioned in the question.
 
 ------------------------------------------------------------------------
 
@@ -369,6 +373,10 @@ First, let's look at the separate effect of `groupsize` in a univariate regressi
 ### Q2.9: What's your hypothesis about how group size affects fox weight?
 
 Before running the model, how do you think the number of foxes in a group `groupsize` would affect fox weight? Why?
+
+# Answer Q2.9)
+
+Theoretically, group size should have an effect on fox weight. This is because, the larger a group, the less food each individual can have. So we would expect a negative effect of group size on weight.
 
 ------------------------------------------------------------------------
 
@@ -418,17 +426,30 @@ summary(food_direct)
 
 What are the effects of `avgfood` and `groupsize` now that you have accounted for both variables?
 
+# Answer 2.10A)
+
+1.  The effect of avgfood on weight is 0.47
+2.  The effect of groupsize on weight is -0.57
+
 ------------------------------------------------------------------------
 
 #### Q2.10b
 
 How does this interpretation change your interpretation from the univariate regressions of each variable separately with `weight`?
 
+# Answer 2.10B)
+
+This contradicts our interpretations from both the univariate regressions that we ran previously. Both of the univariate models' credibility intervals overlapped with zero, suggesting that given our models the effects were not different from zero. But now our multiple regression shows that each have an effect on weight that is different from zero.
+
 ------------------------------------------------------------------------
 
 #### Q2.10c
 
 Provide a small discussion (2-4 sentences) explaining in your own words why these results turned out the way they did, in the context of the ecological system of fox territories. Include why you think that the univariate regressions may have suggested no relationship while the multiple regression suggests a different answer.
+
+# Answer 2.10c)
+
+We found weight increases 0.47kg with every 1 unit increase in average food. Our 95% credibility interval is between 0.11 and 0.83, suggesting that given our model, the effects of average food on weight is different than zero. Additionally, we found that weight decreases 0.57kg with every 1 unit increase in group size. Our 95% credibility interval is between -0.92 and -0.22, suggesting that given our model, the effects of group size on weight is different from zero. When thinking about the context of the ecological system, our results make sense. While knowing the average amount of food available to an individual should allow us to understand the weight of the individual, without knowing about the individual's group size, we cannot be sure how much food that individual is actually getting. Vice versa, while knowing a fox's group size should allow us to get an idea of it's weight, without knowing the average food available to the group, we can't actually know how much food the individual is getting.
 
 ------------------------------------------------------------------------
 
